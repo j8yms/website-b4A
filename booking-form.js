@@ -2,7 +2,9 @@
    BARBER 4 ALL - BOOKING FORM (B4N / wowhair site)
    ------------------------------------------------------------
    Sends the booking form to the Google Sheet via Apps Script.
-   The Apps Script backend is already deployed and tested.
+   Uses mode "no-cors" (send-and-forget) which works in every
+   browser; the response body can't be read, so success is shown
+   once the request is sent and the sheet is the source of truth.
    ============================================================ */
 
 var B4A_BOOKING_CONFIG = {
@@ -91,16 +93,11 @@ var B4A_BOOKING_CONFIG = {
 
       fetch(B4A_BOOKING_CONFIG.appsScriptUrl, {
         method: "POST",
+        mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(data)
-      }).then(function (response) {
-        return response.json().catch(function () { return null; });
-      }).then(function (result) {
-        if (result && result.result === "success") {
-          finishSuccess(form, submitButton, originalValue, messageBox);
-        } else {
-          finishError(submitButton, originalValue, messageBox, (result && result.message) ? result.message : "We couldn't save your booking. Please try again or WhatsApp us at +254 733 572239.");
-        }
+      }).then(function () {
+        finishSuccess(form, submitButton, originalValue, messageBox);
       }).catch(function () {
         finishError(submitButton, originalValue, messageBox, "Something went wrong. Please try again or WhatsApp us at +254 733 572239.");
       });
