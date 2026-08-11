@@ -1,0 +1,8 @@
+Place the provided Homecall image here with this exact filename:
+
+images/service/homecall.jpg
+
+If you have the image attachment from the IDE, save it to the path above so the Homecall card will display it.
+
+Windows example (PowerShell):
+Copy-Item -Path "C:\path\to\downloaded\attachment.jpg" -Destination "g:\VIBE CODING\Barber 4 all website\B4N\gico.io\wowhair\images\service\homecall.jpg" -Force
