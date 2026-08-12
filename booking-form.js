@@ -8,7 +8,10 @@
    ============================================================ */
 
 var B4A_BOOKING_CONFIG = {
-  /* Deployed Apps Script web app URL (already live). */
+  /* Booking-only Apps Script web app URL (apps-script/booking-code.gs).
+     Separate deployment from the Android app's backend. If you redeploy
+     and get a different URL, update it here, in live-status.js and in
+     SheetsApi.kt (app). */
   appsScriptUrl: "https://script.google.com/macros/s/AKfycbxu6UuYGuvO0h1t6TkJ67Ls8FyGRZryWK29j2BAtWGs6oE418os8Wti5BjLDWyOf5bK/exec",
 
   /* Services shown in the booking form (matches the Service Menu). */

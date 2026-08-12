@@ -1,13 +1,13 @@
 (function () {
-  var ENDPOINT = "https://script.google.com/macros/s/AKfycbxu6UuYGuvO0h1t6TkJ67Ls8FyGRZryWK29j2BAtWGs6oE418os8Wti5BjLDWyOf5bK/exec";
+  var ENDPOINT = "https://script.google.com/macros/s/AKfycbxu6UuYGuvO0h1t6TkJ67Ls8FyGRZryWK29j2BAtWGs6oE418os8Wti5BjLDWyOf5bK/exec"; // booking-only backend (apps-script/booking-code.gs)
 
   function injectStyles() {
     var s = document.createElement("style");
     s.textContent = [
-      "#live-queue-bar{display:block;background:#111;color:#f6e2b3;border-bottom:1px solid #D4AF37;text-align:center;padding:10px 20px;font-family:'Roboto',Arial,sans-serif;font-size:14px;font-weight:500;}",
+      "#live-queue-bar{display:block;background:#111;color:#f6e2b3;border-bottom:1px solid #D4AF37;text-align:center;padding:14px 20px;font-family:'Roboto',Arial,sans-serif;font-size:15px;font-weight:500;}",
       "#live-queue-bar strong{color:#D4AF37;}",
-      "#live-queue-bar .b4a-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#5cb85c;margin-right:7px;vertical-align:middle;}",
-      ".barber-status{display:inline-block;margin-left:6px;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600;letter-spacing:.3px;vertical-align:middle;text-transform:uppercase;color:#fff;}",
+      "#live-queue-bar .b4a-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#5cb85c;margin-right:7px;vertical-align:middle;}",
+      ".barber-status{display:inline-block;margin-left:8px;padding:5px 16px;border-radius:16px;font-size:16px;font-weight:700;letter-spacing:.5px;vertical-align:middle;text-transform:uppercase;color:#fff;line-height:1.4;box-shadow:0 1px 4px rgba(0,0,0,.3);}",
       ".barber-status.b4a-available{background:#00b050;}",
       ".barber-status.b4a-busy{background:#c0392b;}",
       ".barber-status.b4a-hidden{display:none;}"
