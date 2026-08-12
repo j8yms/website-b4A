@@ -28,9 +28,8 @@ var B4A_BOOKING_CONFIG = {
   /* Barbers available for booking. */
   barbers: [
     "No preference",
-    "Waweru (Lead Barber)",
-    "Jay",
-    "Esther"
+    "Ng'ash",
+    "Jay"
   ],
 
   /* Available time slots (24h format). */
