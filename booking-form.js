@@ -50,12 +50,41 @@ var B4A_BOOKING_CONFIG = {
 (function () {
   "use strict";
 
+  var closedDates = new Set();
+
   function ready(fn) {
     if (document.readyState !== "loading") { fn(); }
     else { document.addEventListener("DOMContentLoaded", fn); }
   }
 
+  function fetchClosedDates() {
+    var endpoint = B4A_BOOKING_CONFIG.appsScriptUrl;
+    if (!endpoint) return;
+    var sep = endpoint.indexOf("?") === -1 ? "?" : "&";
+    var callbackName = "_b4aClosed" + Date.now();
+    var script = document.createElement("script");
+    window[callbackName] = function (data) {
+      delete window[callbackName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      if (data && data.closedDays) {
+        data.closedDays.forEach(function (d) { closedDates.add(d.date); });
+      }
+    };
+    script.onerror = function () {
+      delete window[callbackName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
+    script.src = endpoint + sep + "closed=1&callback=" + encodeURIComponent(callbackName) + "&v=" + Date.now();
+    document.head.appendChild(script);
+  }
+
+  function isDateDisabled(dateStr) {
+    return closedDates.has(dateStr);
+  }
+
   ready(function () {
+    fetchClosedDates();
+
     var form = document.getElementById("b4a-booking-form");
     if (!form) { return; }
 
@@ -66,6 +95,13 @@ var B4A_BOOKING_CONFIG = {
     var dateInput = document.getElementById("b4a-booking-date");
     if (dateInput) {
       dateInput.min = todayISO();
+      dateInput.addEventListener("change", function () {
+        var val = dateInput.value;
+        if (val && isDateDisabled(val)) {
+          showMessage(document.getElementById("b4a-booking-response"), "Sorry, we are closed on that date. Please choose another date.", "error");
+          dateInput.value = "";
+        }
+      });
     }
 
     form.addEventListener("submit", function (event) {
@@ -80,6 +116,11 @@ var B4A_BOOKING_CONFIG = {
       var data = collectData(form);
       if (!data) {
         showMessage(messageBox, "Please fill in all the required fields.", "error");
+        return;
+      }
+
+      if (isDateDisabled(data.date)) {
+        showMessage(messageBox, "Sorry, we are closed on that date. Please choose another date.", "error");
         return;
       }
 

@@ -304,8 +304,20 @@
             const el = document.getElementById('opening-status');
             if(!el) return;
             const checkHours = parseFloat(el.dataset.checkHours) || 4;
+            const ENDPOINT = "https://script.google.com/macros/s/AKfycbxu6UuYGuvO0h1t6TkJ67Ls8FyGRZryWK29j2BAtWGs6oE418os8Wti5BjLDWyOf5bK/exec";
+            const closedDates = new Map();
             function nowNairobi(){ const now = new Date(); return new Date(now.getTime() + 3*60*60*1000); }
             function pad(n){return n<10?'0'+n:n;}
+            function todayKey(){ const n = nowNairobi(); return n.getUTCFullYear()+'-'+pad(n.getUTCMonth()+1)+'-'+pad(n.getUTCDate()); }
+            function dateKey(d){ return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate()); }
+            function isClosed(d){ return closedDates.has(dateKey(d)); }
+            function closedReason(d){ return closedDates.get(dateKey(d)) || ""; }
+            function fetchClosedDates(){
+                var cb="_b4aClosed"+Date.now(); var s=document.createElement("script");
+                window[cb]=function(data){delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);if(data&&data.closedDays){data.closedDays.forEach(function(d){closedDates.set(d.date,d.reason||"");});render();}};
+                s.onerror=function(){delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);};
+                s.src=ENDPOINT+"?closed=1&callback="+encodeURIComponent(cb)+"&v="+Date.now();document.head.appendChild(s);
+            }
             function getStatus(){
                 const n = nowNairobi();
                 const day = n.getUTCDay();
@@ -316,14 +328,16 @@
                 const isWeekend = (day===0||day===6);
                 const minutes = h*60 + m;
                 const openRange = isWeekend ? weekendOpen : weekdayOpen;
-                const openNow = minutes >= openRange.open && minutes < openRange.close;
-                const closingSoon = minutes >= 19*60 && minutes < openRange.close;
-                return {openNow,minutes,openRange,day,n,closingSoon};
+                const todayClosed = isClosed(n);
+                const openNow = !todayClosed && minutes >= openRange.open && minutes < openRange.close;
+                const closingSoon = minutes >= 19*60 && minutes < openRange.close && !todayClosed;
+                return {openNow,minutes,openRange,day,n,closingSoon,todayClosed,closedReason: closedReason(n)};
             }
             function nextOpeningInfo(){
                 const s = getStatus(); if(s.openNow) return null; let base = s.n;
-                for(let add=0; add<8; add++){
+                for(let add=0; add<14; add++){
                     const test = new Date(base.getTime() + add*24*60*60*1000);
+                    if(isClosed(test)) continue;
                     const day = test.getUTCDay();
                     const isWeekend = (day===0||day===6);
                     const openMins = (isWeekend ? 9*60 : 8*60);
@@ -343,14 +357,14 @@
                     if(s.closingSoon){ statusText.textContent = 'Open • Closing soon'; el.classList.add('closing-soon'); nextText.textContent = 'Closes at ' + (function(){ const c = s.openRange.close; return Math.floor(c/60)+':'+pad(c%60); })(); }
                     else { statusText.textContent = 'Open • Closes at ' + (function(){ const c = s.openRange.close; return Math.floor(c/60)+':'+pad(c%60); })(); nextText.textContent = ''; el.classList.add('open'); }
                 } else {
-                    statusText.textContent = 'Closed';
+                    statusText.textContent = s.todayClosed ? ('Closed' + (s.closedReason ? ' (' + s.closedReason + ')' : '')) : 'Closed';
                     const next = nextOpeningInfo();
                         if(next){ const diffMs = next.opensAt.getTime() - s.n.getTime(); const hours = diffMs/3600000; nextText.textContent = 'Opens in ' + humanDiff(diffMs) + ' (at ' + (function(){ const d=next.opensAt; return d.getUTCHours()+':'+pad(d.getUTCMinutes()); })() + ' Nairobi)'; if(hours <= checkHours){ el.classList.add('opening-soon'); } }
                     else { nextText.textContent = 'Opening schedule unavailable'; }
                     el.classList.add('closed');
                 }
             }
-            render(); setInterval(render, 60*1000);
+            fetchClosedDates(); render(); setInterval(render, 60*1000);
         })();
         </script>
 
